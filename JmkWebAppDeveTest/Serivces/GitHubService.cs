@@ -32,8 +32,6 @@ namespace JmkWebAppDeveTest.Serivces
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36");
         }
 
-        //http://www.developer.com/net/asp/consuming-an-asp.net-web-api-using-httpclient.html
-        //http://www.codeproject.com/Articles/611176/Calling-ASP-NET-WebAPI-using-HttpClient
         public UserInfo[] GetUsers()
         {
                 HttpResponseMessage response = client.GetAsync(this.baseUrl).Result;
