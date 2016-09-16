@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Web;
 using System.Web.Mvc;
 
@@ -11,40 +12,38 @@ namespace JmkWebAppDeveTest.Controllers
     {
         public ViewResult Index(string searchString)
         {
-            GitHubService gitHubService = new GitHubService();
+            GitHubService gitHubService;
 
-            var userInfo = gitHubService.Get(searchString);
+            string baseUrl = "https://api.github.com/users";
 
-            
-            //ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            //ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
-            //var students = from s in db.Students
-            //               select s;
-            //if (!String.IsNullOrEmpty(searchString))
-            //{
-            //    students = students.Where(s => s.LastName.Contains(searchString)
-            //                           || s.FirstMidName.Contains(searchString));
-            //}
-            //switch (sortOrder)
-            //{
-            //    case "name_desc":
-            //        students = students.OrderByDescending(s => s.LastName);
-            //        break;
-            //    case "Date":
-            //        students = students.OrderBy(s => s.EnrollmentDate);
-            //        break;
-            //    case "date_desc":
-            //        students = students.OrderByDescending(s => s.EnrollmentDate);
-            //        break;
-            //    default:
-            //        students = students.OrderBy(s => s.LastName);
-            //        break;
-            //}
+            if (string.IsNullOrWhiteSpace(searchString))
+            {
+                gitHubService = new GitHubService(baseUrl);
 
-            //return View(students.ToList());
+                var usersInfo = gitHubService.GetUsers();
 
-            return View();
+                return View(usersInfo);
+            }
+            else
+            {
+                gitHubService = new GitHubService(baseUrl + "/" + searchString);
+
+                var userInfo = gitHubService.GetUser(searchString);
+
+                gitHubService = new GitHubService(userInfo[0].repos_url);
+
+                var repos = gitHubService.GetRepos();
+
+                var topFiveRepos= repos.OrderByDescending(i => i.stargazers_count).Take(5);
+
+                userInfo[0].repos = topFiveRepos.ToList();
+
+                return View(userInfo);
+            }
+         
         }
+
+
 
         public ActionResult About()
         {
